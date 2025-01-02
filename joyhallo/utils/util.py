@@ -2,7 +2,7 @@
 utils.py
 
 This module provides utility functions for various tasks such as setting random seeds,
-importing modules from files, managing checkpoint files, and saving video files from 
+importing modules from files, managing checkpoint files, and saving video files from
 sequences of PIL images.
 
 Functions:
@@ -35,8 +35,8 @@ Examples:
     delete_additional_ckpt('path/to/checkpoints', 1)
     save_videos_from_pil(pil_images, 'output/video.mp4', fps=12)
 
-The functions in this module ensure reproducibility of experiments by seeding random number 
-generators, allow dynamic importing of modules, manage checkpoint files by deleting extra ones, 
+The functions in this module ensure reproducibility of experiments by seeding random number
+generators, allow dynamic importing of modules, manage checkpoint files by deleting extra ones,
 and provide a way to save sequences of images as video files.
 
 Function Details:
@@ -139,8 +139,7 @@ def delete_additional_ckpt(base_path, num_keep):
     if num_tot <= num_keep:
         return
     # ensure ckpt is sorted and delete the ealier!
-    del_dirs = sorted(dirs, key=lambda x: int(
-        x.split("-")[-1]))[: num_tot - num_keep]
+    del_dirs = sorted(dirs, key=lambda x: int(x.split("-")[-1]))[: num_tot - num_keep]
     for d in del_dirs:
         path_to_dir = osp.join(base_path, d)
         if osp.exists(path_to_dir):
@@ -155,10 +154,10 @@ def save_videos_from_pil(pil_images, path, fps=8):
         pil_images (List[PIL.Image]): A list of PIL.Image objects representing the frames of the video.
         path (str): The output file path for the video.
         fps (int, optional): The frames per second rate of the video. Defaults to 8.
-    
+
     Returns:
         None
-    
+
     Raises:
         ValueError: If the save format is not supported.
 
@@ -300,29 +299,80 @@ def tensor_to_video(tensor, output_video_file, audio_source, fps=25):
         audio_source (str): The path to the audio file (WAV file) that contains the audio track to be added.
         fps (int): The frame rate of the output video. Default is 25 fps.
     """
-    tensor = tensor.permute(1, 2, 3, 0).cpu(
-    ).numpy()  # convert to [f, h, w, c]
-    tensor = np.clip(tensor * 255, 0, 255).astype(
-        np.uint8
-    )  # to [0, 255]
+    tensor = tensor.permute(1, 2, 3, 0).cpu().numpy()  # convert to [f, h, w, c]
+    tensor = np.clip(tensor * 255, 0, 255).astype(np.uint8)  # to [0, 255]
 
     def make_frame(t):
         # get index
         frame_index = min(int(t * fps), tensor.shape[0] - 1)
         return tensor[frame_index]
+
     new_video_clip = VideoClip(make_frame, duration=tensor.shape[0] / fps)
     audio_clip = AudioFileClip(audio_source).subclip(0, tensor.shape[0] / fps)
     new_video_clip = new_video_clip.set_audio(audio_clip)
-    new_video_clip.write_videofile(output_video_file, fps=fps, audio_codec='aac')
+    new_video_clip.write_videofile(output_video_file, fps=fps, audio_codec="aac")
 
 
 silhouette_ids = [
-    10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288,
-    397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136,
-    172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109
+    10,
+    338,
+    297,
+    332,
+    284,
+    251,
+    389,
+    356,
+    454,
+    323,
+    361,
+    288,
+    397,
+    365,
+    379,
+    378,
+    400,
+    377,
+    152,
+    148,
+    176,
+    149,
+    150,
+    136,
+    172,
+    58,
+    132,
+    93,
+    234,
+    127,
+    162,
+    21,
+    54,
+    103,
+    67,
+    109,
 ]
-lip_ids = [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291,
-           146, 91, 181, 84, 17, 314, 405, 321, 375]
+lip_ids = [
+    61,
+    185,
+    40,
+    39,
+    37,
+    0,
+    267,
+    269,
+    270,
+    409,
+    291,
+    146,
+    91,
+    181,
+    84,
+    17,
+    314,
+    405,
+    321,
+    375,
+]
 
 
 def compute_face_landmarks(detection_result, h, w):
@@ -354,7 +404,7 @@ def get_landmark(file):
     Returns:
         Tuple[List[float], List[float]]: A tuple containing two lists of floats representing the x and y coordinates of the facial landmarks.
     """
-    model_path = "pretrained_models/face_analysis/models/face_landmarker_v2_with_blendshapes.task"
+    model_path = "/mnt/nas/share-all/caizebin/04.model/fudan-generative-ai/hallo/face_analysis/models/face_landmarker_v2_with_blendshapes.task"
     BaseOptions = mp.tasks.BaseOptions
     FaceLandmarker = mp.tasks.vision.FaceLandmarker
     FaceLandmarkerOptions = mp.tasks.vision.FaceLandmarkerOptions
@@ -369,8 +419,7 @@ def get_landmark(file):
         image = mp.Image.create_from_file(str(file))
         height, width = image.height, image.width
         face_landmarker_result = landmarker.detect(image)
-        face_landmark = compute_face_landmarks(
-            face_landmarker_result, height, width)
+        face_landmark = compute_face_landmarks(face_landmarker_result, height, width)
 
     return np.array(face_landmark), height, width
 
@@ -393,8 +442,7 @@ def get_landmark_overframes(landmark_model, frames_path):
         image = mp.Image.create_from_file(os.path.join(frames_path, file))
         height, width = image.height, image.width
         landmarker_result = landmark_model.detect(image)
-        frame_landmark = compute_face_landmarks(
-            landmarker_result, height, width)
+        frame_landmark = compute_face_landmarks(landmarker_result, height, width)
         face_landmarks.append(frame_landmark)
 
     return face_landmarks, height, width
@@ -415,10 +463,16 @@ def get_lip_mask(landmarks, height, width, out_path=None, expand_ratio=2.0):
     min_xy_lip = np.round(np.min(lip_landmarks, 0))
     max_xy_lip = np.round(np.max(lip_landmarks, 0))
     min_xy_lip[0], max_xy_lip[0], min_xy_lip[1], max_xy_lip[1] = expand_region(
-        [min_xy_lip[0], max_xy_lip[0], min_xy_lip[1], max_xy_lip[1]], width, height, expand_ratio)
+        [min_xy_lip[0], max_xy_lip[0], min_xy_lip[1], max_xy_lip[1]],
+        width,
+        height,
+        expand_ratio,
+    )
     lip_mask = np.zeros((height, width), dtype=np.uint8)
-    lip_mask[round(min_xy_lip[1]):round(max_xy_lip[1]),
-             round(min_xy_lip[0]):round(max_xy_lip[0])] = 255
+    lip_mask[
+        round(min_xy_lip[1]) : round(max_xy_lip[1]),
+        round(min_xy_lip[0]) : round(max_xy_lip[0]),
+    ] = 255
     if out_path:
         cv2.imwrite(str(out_path), lip_mask)
         return None
@@ -438,8 +492,14 @@ def get_union_lip_mask(landmarks, height, width, expand_ratio=1):
     """
     lip_masks = []
     for landmark in landmarks:
-        lip_masks.append(get_lip_mask(landmarks=landmark, height=height,
-                     width=width, expand_ratio=expand_ratio))
+        lip_masks.append(
+            get_lip_mask(
+                landmarks=landmark,
+                height=height,
+                width=width,
+                expand_ratio=expand_ratio,
+            )
+        )
     union_mask = get_union_mask(lip_masks)
     return union_mask
 
@@ -461,10 +521,16 @@ def get_face_mask(landmarks, height, width, out_path=None, expand_ratio=1.2):
     min_xy_face = np.round(np.min(face_landmarks, 0))
     max_xy_face = np.round(np.max(face_landmarks, 0))
     min_xy_face[0], max_xy_face[0], min_xy_face[1], max_xy_face[1] = expand_region(
-        [min_xy_face[0], max_xy_face[0], min_xy_face[1], max_xy_face[1]], width, height, expand_ratio)
+        [min_xy_face[0], max_xy_face[0], min_xy_face[1], max_xy_face[1]],
+        width,
+        height,
+        expand_ratio,
+    )
     face_mask = np.zeros((height, width), dtype=np.uint8)
-    face_mask[round(min_xy_face[1]):round(max_xy_face[1]),
-              round(min_xy_face[0]):round(max_xy_face[0])] = 255
+    face_mask[
+        round(min_xy_face[1]) : round(max_xy_face[1]),
+        round(min_xy_face[0]) : round(max_xy_face[0]),
+    ] = 255
     if out_path:
         cv2.imwrite(str(out_path), face_mask)
         return None
@@ -486,9 +552,17 @@ def get_union_face_mask(landmarks, height, width, expand_ratio=1):
     """
     face_masks = []
     for landmark in landmarks:
-        face_masks.append(get_face_mask(landmarks=landmark,height=height,width=width,expand_ratio=expand_ratio))
+        face_masks.append(
+            get_face_mask(
+                landmarks=landmark,
+                height=height,
+                width=width,
+                expand_ratio=expand_ratio,
+            )
+        )
     union_mask = get_union_mask(face_masks)
     return union_mask
+
 
 def get_mask(file, cache_dir, face_expand_raio):
     """
@@ -503,23 +577,35 @@ def get_mask(file, cache_dir, face_expand_raio):
     """
     landmarks, height, width = get_landmark(file)
     file_name = os.path.basename(file).split(".")[0]
-    get_lip_mask(landmarks, height, width, os.path.join(
-        cache_dir, f"{file_name}_lip_mask.png"))
-    get_face_mask(landmarks, height, width, os.path.join(
-        cache_dir, f"{file_name}_face_mask.png"), face_expand_raio)
-    get_blur_mask(os.path.join(
-        cache_dir, f"{file_name}_face_mask.png"), os.path.join(
-        cache_dir, f"{file_name}_face_mask_blur.png"), kernel_size=(51, 51))
-    get_blur_mask(os.path.join(
-        cache_dir, f"{file_name}_lip_mask.png"), os.path.join(
-        cache_dir, f"{file_name}_sep_lip.png"), kernel_size=(31, 31))
-    get_background_mask(os.path.join(
-        cache_dir, f"{file_name}_face_mask_blur.png"), os.path.join(
-        cache_dir, f"{file_name}_sep_background.png"))
-    get_sep_face_mask(os.path.join(
-        cache_dir, f"{file_name}_face_mask_blur.png"), os.path.join(
-        cache_dir, f"{file_name}_sep_lip.png"), os.path.join(
-        cache_dir, f"{file_name}_sep_face.png"))
+    get_lip_mask(
+        landmarks, height, width, os.path.join(cache_dir, f"{file_name}_lip_mask.png")
+    )
+    get_face_mask(
+        landmarks,
+        height,
+        width,
+        os.path.join(cache_dir, f"{file_name}_face_mask.png"),
+        face_expand_raio,
+    )
+    get_blur_mask(
+        os.path.join(cache_dir, f"{file_name}_face_mask.png"),
+        os.path.join(cache_dir, f"{file_name}_face_mask_blur.png"),
+        kernel_size=(51, 51),
+    )
+    get_blur_mask(
+        os.path.join(cache_dir, f"{file_name}_lip_mask.png"),
+        os.path.join(cache_dir, f"{file_name}_sep_lip.png"),
+        kernel_size=(31, 31),
+    )
+    get_background_mask(
+        os.path.join(cache_dir, f"{file_name}_face_mask_blur.png"),
+        os.path.join(cache_dir, f"{file_name}_sep_background.png"),
+    )
+    get_sep_face_mask(
+        os.path.join(cache_dir, f"{file_name}_face_mask_blur.png"),
+        os.path.join(cache_dir, f"{file_name}_sep_lip.png"),
+        os.path.join(cache_dir, f"{file_name}_sep_face.png"),
+    )
 
 
 def expand_region(region, image_w, image_h, expand_ratio=1.0):
@@ -560,7 +646,9 @@ def expand_region(region, image_w, image_h, expand_ratio=1.0):
     return round(min_x), round(max_x), round(min_y), round(max_y)
 
 
-def get_blur_mask(file_path, output_file_path, resize_dim=(64, 64), kernel_size=(101, 101)):
+def get_blur_mask(
+    file_path, output_file_path, resize_dim=(64, 64), kernel_size=(101, 101)
+):
     """
     Read, resize, blur, normalize, and save an image.
 
@@ -575,7 +663,9 @@ def get_blur_mask(file_path, output_file_path, resize_dim=(64, 64), kernel_size=
 
     # Check if the image is loaded successfully
     if mask is not None:
-        normalized_mask = blur_mask(mask,resize_dim=resize_dim,kernel_size=kernel_size)
+        normalized_mask = blur_mask(
+            mask, resize_dim=resize_dim, kernel_size=kernel_size
+        )
         # Save the normalized mask image
         cv2.imwrite(output_file_path, normalized_mask)
         return f"Processed, normalized, and saved: {output_file_path}"
@@ -599,10 +689,10 @@ def blur_mask(mask, resize_dim=(64, 64), kernel_size=(51, 51)):
         # Apply Gaussian blur to the resized mask image
         blurred_mask = cv2.GaussianBlur(resized_mask, kernel_size, 0)
         # Normalize the blurred image
-        normalized_mask = cv2.normalize(
-            blurred_mask, None, 0, 255, cv2.NORM_MINMAX)
+        normalized_mask = cv2.normalize(blurred_mask, None, 0, 255, cv2.NORM_MINMAX)
         # Save the normalized mask image
     return normalized_mask
+
 
 def get_background_mask(file_path, output_file_path):
     """
@@ -661,13 +751,25 @@ def get_sep_face_mask(file_path1, file_path2, output_file_path):
     cv2.imwrite(output_file_path, result_mask)
     print(f"Processed and saved: {output_file_path}")
 
+
 def resample_audio(input_audio_file: str, output_audio_file: str, sample_rate: int):
-    p = subprocess.Popen([
-        "ffmpeg", "-y", "-v", "error", "-i", input_audio_file, "-ar", str(sample_rate), output_audio_file
-    ])
+    p = subprocess.Popen(
+        [
+            "ffmpeg",
+            "-y",
+            "-v",
+            "error",
+            "-i",
+            input_audio_file,
+            "-ar",
+            str(sample_rate),
+            output_audio_file,
+        ]
+    )
     ret = p.wait()
     assert ret == 0, "Resample audio failed!"
     return output_audio_file
+
 
 def get_face_region(image_path: str, detector):
     try:
@@ -685,10 +787,11 @@ def get_face_region(image_path: str, detector):
         for detection in detection_result.detections:
             bbox = detection.bounding_box
             start_point = (int(bbox.origin_x), int(bbox.origin_y))
-            end_point = (int(bbox.origin_x + bbox.width),
-                         int(bbox.origin_y + bbox.height))
-            cv2.rectangle(mask, start_point, end_point,
-                          (255, 255, 255), thickness=-1)
+            end_point = (
+                int(bbox.origin_x + bbox.width),
+                int(bbox.origin_y + bbox.height),
+            )
+            cv2.rectangle(mask, start_point, end_point, (255, 255, 255), thickness=-1)
 
         save_path = image_path.replace("images", "face_masks")
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
@@ -700,7 +803,13 @@ def get_face_region(image_path: str, detector):
         return None, None
 
 
-def save_checkpoint(model: torch.nn.Module, save_dir: str, prefix: str, ckpt_num: int, total_limit: int = -1) -> None:
+def save_checkpoint(
+    model: torch.nn.Module,
+    save_dir: str,
+    prefix: str,
+    ckpt_num: int,
+    total_limit: int = -1,
+) -> None:
     """
     Save the model's state_dict to a checkpoint file.
 
@@ -722,8 +831,7 @@ def save_checkpoint(model: torch.nn.Module, save_dir: str, prefix: str, ckpt_num
     """
 
     if not osp.exists(save_dir):
-        raise FileNotFoundError(
-            f"The save directory {save_dir} does not exist.")
+        raise FileNotFoundError(f"The save directory {save_dir} does not exist.")
 
     if ckpt_num < 0:
         raise ValueError(f"Checkpoint number {ckpt_num} must be non-negative.")
@@ -743,18 +851,14 @@ def save_checkpoint(model: torch.nn.Module, save_dir: str, prefix: str, ckpt_num
             print(
                 f"{len(checkpoints)} checkpoints already exist, removing {len(removing_checkpoints)} checkpoints"
             )
-            print(
-                f"Removing checkpoints: {', '.join(removing_checkpoints)}"
-            )
+            print(f"Removing checkpoints: {', '.join(removing_checkpoints)}")
 
             for removing_checkpoint in removing_checkpoints:
-                removing_checkpoint_path = osp.join(
-                    save_dir, removing_checkpoint)
+                removing_checkpoint_path = osp.join(save_dir, removing_checkpoint)
                 try:
                     os.remove(removing_checkpoint_path)
                 except OSError as e:
-                    print(
-                        f"Error removing checkpoint {removing_checkpoint_path}: {e}")
+                    print(f"Error removing checkpoint {removing_checkpoint_path}: {e}")
 
     state_dict = model.state_dict()
     try:
@@ -809,7 +913,8 @@ def load_checkpoint(cfg, save_dir, accelerator):
         global_step = int(path.split("-")[1])
     else:
         accelerator.print(
-            f"Could not find checkpoint under {resume_dir}, start training from scratch")
+            f"Could not find checkpoint under {resume_dir}, start training from scratch"
+        )
         global_step = 0
 
     return global_step
@@ -865,11 +970,18 @@ def extract_audio_from_videos(video_path: Path, audio_output_path: Path) -> Path
         subprocess.CalledProcessError: If the ffmpeg command fails to execute.
     """
     ffmpeg_command = [
-        'ffmpeg', '-y',
-        '-i', str(video_path),
-        '-vn', '-acodec',
-        "pcm_s16le", '-ar', '16000', '-ac', '2',
-        str(audio_output_path)
+        "ffmpeg",
+        "-y",
+        "-i",
+        str(video_path),
+        "-vn",
+        "-acodec",
+        "pcm_s16le",
+        "-ar",
+        "16000",
+        "-ac",
+        "2",
+        str(audio_output_path),
     ]
 
     try:
@@ -900,10 +1012,12 @@ def convert_video_to_images(video_path: Path, output_dir: Path) -> Path:
         subprocess.CalledProcessError: If the ffmpeg command fails to execute.
     """
     ffmpeg_command = [
-        'ffmpeg',
-        '-i', str(video_path),
-        '-vf', 'fps=25',
-        str(output_dir / '%04d.png')
+        "ffmpeg",
+        "-i",
+        str(video_path),
+        "-vf",
+        "fps=25",
+        str(output_dir / "%04d.png"),
     ]
 
     try:
@@ -948,7 +1062,7 @@ def get_union_mask(masks):
             return 0.0
 
         # Set bounding box area to white
-        union_mask[ymin: ymax + 1, xmin: xmax + 1] = np.max(union_mask)
+        union_mask[ymin : ymax + 1, xmin : xmax + 1] = np.max(union_mask)
 
     return union_mask
 
@@ -969,8 +1083,8 @@ def move_final_checkpoint(save_dir, module_dir, prefix):
     """
     checkpoints = os.listdir(module_dir)
     checkpoints = [d for d in checkpoints if d.startswith(prefix)]
-    checkpoints = sorted(
-        checkpoints, key=lambda x: int(x.split("-")[1].split(".")[0])
+    checkpoints = sorted(checkpoints, key=lambda x: int(x.split("-")[1].split(".")[0]))
+    shutil.copy2(
+        os.path.join(module_dir, checkpoints[-1]),
+        os.path.join(save_dir, prefix + ".pth"),
     )
-    shutil.copy2(os.path.join(
-        module_dir, checkpoints[-1]), os.path.join(save_dir, prefix + '.pth'))
