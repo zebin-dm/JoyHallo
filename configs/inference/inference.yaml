@@ -109,24 +109,12 @@ resume_from_checkpoint: "latest"
 checkpointing_steps: 500
 
 exp_name: "joyhallo"
-output_dir: "./opts"
+output_dir: "/mnt/nas/share-all/caizebin/07.cache/jayhallo/opts"
 
 audio_ckpt_dir: /mnt/nas/share-all/caizebin/04.model/joyhallo/net.pth
 
 ref_img_path:
-  - "examples/reference_images/1.jpg"
-  - "examples/reference_images/2.jpg"
-  - "examples/reference_images/3.jpg"
-  - "examples/reference_images/4.jpg"
-  - "examples/reference_images/5.jpg"
-  - "examples/reference_images/6.jpg"
-  - "examples/reference_images/7.jpg"
+  - "examples/reference_images/little_girl.png"
   
 audio_path:
-  - "examples/driving_audios/0.wav"
-  - "examples/driving_audios/0.wav"
-  - "examples/driving_audios/0.wav"
-  - "examples/driving_audios/0.wav"
-  - "examples/driving_audios/0.wav"
-  - "examples/driving_audios/0.wav"
   - "examples/driving_audios/0.wav"
