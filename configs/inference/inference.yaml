@@ -15,15 +15,15 @@ wav2vec_config:
   audio_type: "vocals" # audio vocals
   model_scale: "base" # base large
   features: "all" # last avg all
-  model_path: ./pretrained_models/chinese-wav2vec2-base
+  model_path: /mnt/nas/share-all/caizebin/04.model/TencentGameMate/chinese-wav2vec2-base
 audio_separator:
-  model_path: ./pretrained_models/audio_separator/Kim_Vocal_2.onnx
+  model_path: /mnt/nas/share-all/caizebin/04.model/fudan-generative-ai/hallo/audio_separator/Kim_Vocal_2.onnx
 face_expand_ratio: 1.2
 
 solver:
   gradient_accumulation_steps: 1
   mixed_precision: "no"
-  enable_xformers_memory_efficient_attention: True
+  enable_xformers_memory_efficient_attention: False
   gradient_checkpointing: True
   max_train_steps: 30000
   max_grad_norm: 1.0
@@ -85,10 +85,10 @@ trainable_para:
   - audio_modules
   - motion_modules
 
-base_model_path: "./pretrained_models/stable-diffusion-v1-5"
-vae_model_path: "./pretrained_models/sd-vae-ft-mse"
-face_analysis_model_path: "./pretrained_models/face_analysis"
-mm_path: "./pretrained_models/motion_module/mm_sd_v15_v2.ckpt"
+base_model_path: /mnt/nas/share-all/caizebin/04.model/fudan-generative-ai/hallo/stable-diffusion-v1-5
+vae_model_path: /mnt/nas/share-all/caizebin/04.model/fudan-generative-ai/hallo/sd-vae-ft-mse
+face_analysis_model_path: /mnt/nas/share-all/caizebin/04.model/fudan-generative-ai/hallo/face_analysis
+mm_path: /mnt/nas/share-all/caizebin/04.model/fudan-generative-ai/hallo/motion_module/mm_sd_v15_v2.ckpt
 
 weight_dtype: "fp16" # [fp16, fp32]
 uncond_img_ratio: 0.05
@@ -98,7 +98,7 @@ start_ratio: 0.05
 noise_offset: 0.05
 snr_gamma: 5.0
 enable_zero_snr: True
-stage1_ckpt_dir: "./exp_output/stage1/"
+stage1_ckpt_dir: /mnt/nas/share-all/caizebin/07.cache/jayhallo/stage1
 
 single_inference_times: 10
 inference_steps: 40
@@ -109,24 +109,12 @@ resume_from_checkpoint: "latest"
 checkpointing_steps: 500
 
 exp_name: "joyhallo"
-output_dir: "./opts"
+output_dir: "/mnt/nas/share-all/caizebin/07.cache/jayhallo/opts"
 
-audio_ckpt_dir: "./pretrained_models/joyhallo/net.pth"
+audio_ckpt_dir: /mnt/nas/share-all/caizebin/04.model/joyhallo/net.pth
 
 ref_img_path:
-  - "examples/reference_images/1.jpg"
-  - "examples/reference_images/2.jpg"
-  - "examples/reference_images/3.jpg"
-  - "examples/reference_images/4.jpg"
-  - "examples/reference_images/5.jpg"
-  - "examples/reference_images/6.jpg"
-  - "examples/reference_images/7.jpg"
+  - "examples/reference_images/little_girl.png"
   
 audio_path:
-  - "examples/driving_audios/0.wav"
-  - "examples/driving_audios/0.wav"
-  - "examples/driving_audios/0.wav"
-  - "examples/driving_audios/0.wav"
-  - "examples/driving_audios/0.wav"
-  - "examples/driving_audios/0.wav"
   - "examples/driving_audios/0.wav"
